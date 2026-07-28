@@ -4,6 +4,7 @@ import { permissionRouter } from "@features/Permission/presentation/permission.r
 import { roleRouter } from "@features/Role/presentation/role.routes";
 import { userRouter } from "@features/User/presentation/user.routes";
 import { authGuard } from "@core/middleware/authGuard";
+import { mediaRouter } from "@features/Media/presentation/media.routes";
 
 export const apiRouter = Router();
 
@@ -13,3 +14,4 @@ apiRouter.use(authGuard); // everything below this line requires a valid access 
 apiRouter.use("/permissions", permissionRouter);
 apiRouter.use("/roles", roleRouter);
 apiRouter.use("/users", userRouter);
+apiRouter.use("/media", mediaRouter);
