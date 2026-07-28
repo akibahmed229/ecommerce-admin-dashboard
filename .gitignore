@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build and Compilation Outputs (if using TypeScript/Babel)
+dist/
+build/
+out/
+
+# Diagnostic and Coverage reports
+coverage/
+.nyc_output/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Operating System Files
+.DS_Store
+Thumbs.db
