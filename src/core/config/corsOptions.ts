@@ -1,7 +1,7 @@
 import { CorsOptions } from "cors";
 
 // Allowed origins (only requests from these URLs are permitted)
-const whiteList = ["http://127.0.0.1:3500", "http://127.0.0.1:3001"];
+const whiteList = ["http://127.0.0.1:3500", "http://127.0.0.1:3001", "http://localhost:3000", "http://127.0.0.1:3000"];
 
 // CORS configuration object
 export const corsOptions: CorsOptions = {

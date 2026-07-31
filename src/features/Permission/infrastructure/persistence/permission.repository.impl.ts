@@ -8,14 +8,24 @@ import { permissionGroupsTable, permissionsTable } from "./permission.schema";
 
 export class PermissionRepository implements IPermissionRepository {
     async findGroupById(id: string): Promise<PermissionGroupWithActions | null> {
-        const [group] = await db.select().from(permissionGroupsTable).where(eq(permissionGroupsTable.id, id));
+        const [group] = await db
+            .select().from(permissionGroupsTable)
+            .where(eq(permissionGroupsTable.id, id));
+
         if (!group) return null;
-        const actions = await db.select().from(permissionsTable).where(eq(permissionsTable.groupId, id));
+
+        const actions = await db
+            .select().from(permissionsTable)
+            .where(eq(permissionsTable.groupId, id));
+
         return { ...group, actions };
     }
 
     async findGroupByName(name: string): Promise<PermissionGroup | null> {
-        const [group] = await db.select().from(permissionGroupsTable).where(eq(permissionGroupsTable.name, name));
+        const [group] = await db.select()
+            .from(permissionGroupsTable)
+            .where(eq(permissionGroupsTable.name, name));
+
         return group ?? null;
     }
 
@@ -25,32 +35,68 @@ export class PermissionRepository implements IPermissionRepository {
         const offset = (page - 1) * limit;
         const whereClause = options.search ? ilike(permissionGroupsTable.name, `%${options.search}%`) : undefined;
 
-        const groups = await db.select().from(permissionGroupsTable).where(whereClause).limit(limit).offset(offset);
-        const [{ value: total }] = await db.select({ value: count() }).from(permissionGroupsTable).where(whereClause);
+        const groups = await db
+            .select().
+            from(permissionGroupsTable).
+            where(whereClause)
+            .limit(limit)
+            .offset(offset);
+
+        const [{ value: total }] = await db
+            .select({ value: count() })
+            .from(permissionGroupsTable).where(whereClause);
 
         const data: PermissionGroupWithActions[] = [];
+
         for (const group of groups) {
-            const actions = await db.select().from(permissionsTable).where(eq(permissionsTable.groupId, group.id));
+            const actions = await db
+                .select().from(permissionsTable)
+                .where(eq(permissionsTable.groupId, group.id));
+
             data.push({ ...group, actions });
         }
+
         return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
     }
 
     async createGroupWithPermissions(input: CreatePermissionGroupInput): Promise<PermissionGroupWithActions> {
         return db.transaction(async (tx: any) => {
-            const [group] = await tx.insert(permissionGroupsTable).values({ name: input.name, description: input.description }).returning();
+            const [group] = await tx.insert(permissionGroupsTable)
+                .values(
+                    {
+                        name: input.name,
+                        description: input.description
+                    }
+                )
+                .returning();
             const prefix = slugifyGroupName(group.name);
             const rows = input.actions.length
                 ? await tx.insert(permissionsTable).values(
-                    input.actions.map((a) => ({ groupId: group.id, name: `${prefix}:${normalizeAction(a.name)}`, description: a.description }))
+                    input.actions.map((a) => (
+                        {
+                            groupId: group.id,
+                            name: `${prefix}:${normalizeAction(a.name)}`,
+                            description: a.description
+                        }
+                    ))
                 ).returning()
                 : [];
+
             return { ...group, actions: rows };
         });
     }
 
     async updateGroup(id: string, input: UpdatePermissionGroupInput): Promise<PermissionGroup> {
-        const [group] = await db.update(permissionGroupsTable).set({ name: input.name, description: input.description, updatedAt: new Date() }).where(eq(permissionGroupsTable.id, id)).returning();
+        const [group] = await db.
+            update(permissionGroupsTable).
+            set(
+                {
+                    name: input.name,
+                    description: input.description,
+                    updatedAt: new Date()
+                })
+            .where(eq(permissionGroupsTable.id, id)).returning();
+
         return group;
     }
 
@@ -60,19 +106,42 @@ export class PermissionRepository implements IPermissionRepository {
     }
 
     async addPermissionToGroup(groupId: string, name: string, description?: string): Promise<Permission> {
-        const [group] = await db.select().from(permissionGroupsTable).where(eq(permissionGroupsTable.id, groupId));
+        const [group] = await db
+            .select()
+            .from(permissionGroupsTable)
+            .where(eq(permissionGroupsTable.id, groupId));
+
         const prefix = slugifyGroupName(group.name);
-        const [permission] = await db.insert(permissionsTable).values({ groupId, name: `${prefix}:${normalizeAction(name)}`, description }).returning();
+
+        const [permission] = await db
+            .insert(permissionsTable).
+            values(
+                {
+                    groupId,
+                    name: `${prefix}:${normalizeAction(name)}`,
+                    description
+                }
+            )
+            .returning();
+
         return permission;
     }
 
     async deletePermission(id: string): Promise<boolean> {
-        const result = await db.delete(permissionsTable).where(eq(permissionsTable.id, id)).returning({ id: permissionsTable.id });
+        const result = await db
+            .delete(permissionsTable)
+            .where(eq(permissionsTable.id, id))
+            .returning({ id: permissionsTable.id });
+
         return result.length > 0;
     }
 
     async deleteGroup(id: string): Promise<boolean> {
-        const result = await db.delete(permissionGroupsTable).where(eq(permissionGroupsTable.id, id)).returning({ id: permissionGroupsTable.id });
+        const result = await db
+            .delete(permissionGroupsTable)
+            .where(eq(permissionGroupsTable.id, id))
+            .returning({ id: permissionGroupsTable.id });
+
         return result.length > 0; // cascades permissionsTable -> role_permissionsTable per your schema's onDelete: "cascade"
     }
 }
