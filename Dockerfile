@@ -18,4 +18,7 @@ RUN npm run build
 EXPOSE 3500
 
 # Start compiled JS in production
-CMD npx tsx src/core/database/seed.ts && npm start
+CMD npm start
+
+# seed db
+# npx tsx src/core/database/seed.ts
