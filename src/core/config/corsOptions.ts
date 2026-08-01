@@ -1,7 +1,11 @@
 import { CorsOptions } from "cors";
 
 // Allowed origins (only requests from these URLs are permitted)
-const whiteList = ["http://127.0.0.1:3500", "http://127.0.0.1:3001", "http://localhost:3000", "http://127.0.0.1:3000"];
+const whiteList = [
+    "http://localhost:3500",
+    "http://127.0.0.1:3500",
+    "https://ecommerce-admin-dashboard-website.vercel.app"
+];
 
 // CORS configuration object
 export const corsOptions: CorsOptions = {
