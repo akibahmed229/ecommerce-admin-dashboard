@@ -2,6 +2,7 @@ import "dotenv/config";
 import { db } from "./drizzle-client";
 import { hashPassword } from "@core/utils/hash";
 import { permissionGroupsTable, permissionsTable, rolePermissionsTable, rolesTable, usersTable } from "./schema";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 
 const MODULES: Record<string, string[]> = {
     dashboard: ["watch"],
@@ -17,6 +18,14 @@ const MODULES: Record<string, string[]> = {
 const CATALOG_MODULES = ["category", "brand", "attribute", "product", "media", "dashboard"];
 
 async function main() {
+    console.log("Running migrations...");
+    // Make sure the path points to your drizzle migrations folder
+    await migrate(db, { migrationsFolder: "./drizzle" });
+
+    console.log("Seeding database...");
+    // ... your existing seed logic here
+
+
     const allIds: string[] = [];
     const catalogIds: string[] = [];
 
