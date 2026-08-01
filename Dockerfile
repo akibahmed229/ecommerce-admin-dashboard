@@ -2,12 +2,20 @@ FROM node:26-alpine
 
 WORKDIR /app
 
+# Copy dependency definitions
 COPY package*.json ./
 
-RUN npm install
+# Install ALL dependencies (including devDependencies needed for build)
+RUN npm ci
 
+# Copy application source code
 COPY . .
 
+# Compile TypeScript to JavaScript (dist/server.js)
+RUN npm run build
+
+# Expose internal port
 EXPOSE 4000
 
-CMD ["npm", "run", "dev"]
+# Start compiled JS in production
+CMD ["npm", "start"]

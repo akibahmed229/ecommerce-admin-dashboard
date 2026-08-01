@@ -6,12 +6,7 @@ export default defineConfig({
     schema: './src/core/database/schema/index.ts',
     dialect: 'postgresql',
     dbCredentials: {
-        host: "localhost",
-        port: 5437,
-        database: "admindashboard",
-        user: "akib",
-        password: "akib",
-        ssl: false,
+        url: process.env.DATABASE_URL!
     },
 });
 
