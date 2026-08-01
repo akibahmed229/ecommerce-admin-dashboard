@@ -7,30 +7,50 @@ import { mediaTable } from "@core/database/schema";
 
 export class CategoryRepository implements ICategoryRepository {
     async findById(id: string): Promise<CategoryWithDetails | null> {
-        const [row] = await db.select({ category: categoriesTable, image: mediaTable }).from(categoriesTable).leftJoin(mediaTable, eq(mediaTable.id, categoriesTable.imageId)).where(eq(categoriesTable.id, id));
+        const [row] = await db
+            .select({ category: categoriesTable, image: mediaTable })
+            .from(categoriesTable)
+            .leftJoin(mediaTable, eq(mediaTable.id, categoriesTable.imageId))
+            .where(eq(categoriesTable.id, id));
+
         if (!row) return null;
-        const parent = row.category.parentId ? (await db.select().from(categoriesTable).where(eq(categoriesTable.id, row.category.parentId)))[0] ?? null : null;
+
+        const parent = row.category.parentId ? (await db
+            .select()
+            .from(categoriesTable)
+            .where(eq(categoriesTable.id, row.category.parentId)))
+        [0] ?? null : null;
+
         return { ...row.category, image: row.image ?? null, parent };
     }
 
     async findBySlug(slug: string): Promise<Category | null> {
-        const [row] = await db.select().from(categoriesTable).where(eq(categoriesTable.slug, slug));
+        const [row] = await db
+            .select()
+            .from(categoriesTable)
+            .where(eq(categoriesTable.slug, slug));
+
         return row ?? null;
     }
 
     async findAllFlat(): Promise<CategoryWithDetails[]> {
         const rows = await db
             .select({ category: categoriesTable, image: mediaTable })
-            .from(categoriesTable).leftJoin(mediaTable, eq(mediaTable.id, categoriesTable.imageId)).orderBy(categoriesTable.sortOrder);
+            .from(categoriesTable)
+            .leftJoin(mediaTable, eq(mediaTable.id, categoriesTable.imageId))
+            .orderBy(categoriesTable.sortOrder);
 
         return rows.map((r) => ({ ...r.category, image: r.image ?? null }));
     }
 
     async findTree(): Promise<CategoryTreeNode[]> {
         const flat = await this.findAllFlat();
-        const byId = new Map<string, CategoryTreeNode>();
+        const byId = new Map < string, CategoryTreeNode> ();
+
         flat.forEach((c) => byId.set(c.id, { ...c, children: [] }));
+
         const roots: CategoryTreeNode[] = [];
+
         byId.forEach((node) => {
             if (node.parentId) {
                 const parent = byId.get(node.parentId);
@@ -39,6 +59,7 @@ export class CategoryRepository implements ICategoryRepository {
                 roots.push(node);
             }
         });
+
         return roots;
     }
 
@@ -62,7 +83,7 @@ export class CategoryRepository implements ICategoryRepository {
     async getAncestorIds(categoryId: string): Promise<string[]> {
         const ids: string[] = [];
         let currentId: string | null = categoryId;
-        const visited = new Set<string>();
+        const visited = new Set < string > ();
         while (currentId) {
             if (visited.has(currentId)) break; // defensive — existing data shouldn't cycle, but never infinite-loop if it somehow does
             visited.add(currentId);

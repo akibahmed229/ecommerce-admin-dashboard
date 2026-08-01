@@ -11,14 +11,22 @@ const CRITICAL_PERMISSION = "role:update";
 
 async function resolvePermissionIds(input: { permissionIds?: string[]; grantAll?: boolean }) {
     if (input.grantAll) {
-        const all = await db.select({ id: permissionsTable.id }).from(permissionsTable);
+        const all = await db
+            .select({ id: permissionsTable.id })
+            .from(permissionsTable);
+
         return all.map((p) => p.id);
     }
+
     return input.permissionIds;
 }
 
 async function permissionIdFor(name: string) {
-    const [permission] = await db.select().from(permissionsTable).where(eq(permissionsTable.name, name));
+    const [permission] = await db
+        .select()
+        .from(permissionsTable)
+        .where(eq(permissionsTable.name, name));
+
     return permission?.id;
 }
 
@@ -28,12 +36,14 @@ export const roleService = {
     async get(id: string) {
         const role = await repo.findById(id);
         if (!role) throw new NotFoundError("Role not found");
+
         return role;
     },
 
     async create(input: CreateRoleInput & { grantAll?: boolean }) {
         if (await repo.findByName(input.name)) throw new ConflictError("A role with this name already exists");
         const permissionIds = (await resolvePermissionIds(input)) ?? [];
+
         return repo.create({ ...input, permissionIds });
     },
 
@@ -63,6 +73,7 @@ export const roleService = {
         const userCount = await repo.countUsersWithRole(id);
         if (userCount > 0) throw new ConflictError(`Cannot delete role — ${userCount} user(s) still hold it`);
         if (!(await repo.delete(id))) throw new NotFoundError("Role not found");
+
         return true;
     },
 };

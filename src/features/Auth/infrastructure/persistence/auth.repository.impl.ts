@@ -7,12 +7,19 @@ import { refreshTokensTable } from "./auth.schema";
 
 export class AuthRepository implements IAuthRepository {
     async createRefreshToken(userId: string, token: string, expiresAt: Date): Promise<RefreshToken> {
-        const [row] = await db.insert(refreshTokensTable).values({ userId, token: hashToken(token), expiresAt }).returning();
+        const [row] = await db
+            .insert(refreshTokensTable)
+            .values({ userId, token: hashToken(token), expiresAt })
+            .returning();
+
         return row;
     }
 
     async findRefreshToken(token: string): Promise<RefreshToken | null> {
-        const [row] = await db.select().from(refreshTokensTable).where(eq(refreshTokensTable.token, hashToken(token)));
+        const [row] = await db.select()
+            .from(refreshTokensTable)
+            .where(eq(refreshTokensTable.token, hashToken(token)));
+
         return row ?? null;
     }
 
@@ -24,6 +31,9 @@ export class AuthRepository implements IAuthRepository {
     }
 
     async revokeAllUserTokens(userId: string): Promise<void> {
-        await db.update(refreshTokensTable).set({ isRevoked: true }).where(eq(refreshTokensTable.userId, userId));
+        await db
+            .update(refreshTokensTable)
+            .set({ isRevoked: true })
+            .where(eq(refreshTokensTable.userId, userId));
     }
 }

@@ -22,7 +22,9 @@ function refreshExpiry() {
 async function issueTokenPair(userId: string, roleId: string): Promise<TokenPair> {
     const accessToken = signAccessToken({ sub: userId, roleId });
     const refreshToken = generateRefreshToken();
+
     await authRepo.createRefreshToken(userId, refreshToken, refreshExpiry());
+
     return { accessToken, refreshToken };
 }
 
