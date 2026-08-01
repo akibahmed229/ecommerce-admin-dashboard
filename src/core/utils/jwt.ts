@@ -4,9 +4,12 @@ import { env } from "@core/config/env";
 import { JwtPayload } from "@features/Auth/domain/auth.entity";
 
 export function signAccessToken(payload: Pick<JwtPayload, "sub" | "roleId">) {
-    return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
+    const secret: jwt.Secret = env.JWT_ACCESS_SECRET;
+    const options: SignOptions = {
         expiresIn: env.ACCESS_TOKEN_TTL as SignOptions["expiresIn"],
-    });
+    };
+
+    return jwt.sign(payload, secret, options);
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
