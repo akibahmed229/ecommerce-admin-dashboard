@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # Expose internal port
-EXPOSE 4000
+EXPOSE 3500
 
 # Start compiled JS in production
 CMD ["npm", "start"]
