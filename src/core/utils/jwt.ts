@@ -1,10 +1,12 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import crypto from "crypto";
 import { env } from "@core/config/env";
 import { JwtPayload } from "@features/Auth/domain/auth.entity";
 
 export function signAccessToken(payload: Pick<JwtPayload, "sub" | "roleId">) {
-    return jwt.sign(payload, env.JWT_ACCESS_SECRET, { expiresIn: env.ACCESS_TOKEN_TTL });
+    return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
+        expiresIn: env.ACCESS_TOKEN_TTL as SignOptions["expiresIn"],
+    });
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
